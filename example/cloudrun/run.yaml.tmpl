@@ -1,0 +1,27 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: {{ .SERVICE_NAME }}
+  labels:
+    cloud.googleapis.com/location: {{ .REGION }}
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: {{ .MIN_INSTANCES }}
+        autoscaling.knative.dev/maxScale: {{ .MAX_INSTANCES }}
+    spec:
+      containers:
+      - image: {{ .IMAGE_REGISTRY }}/{{ .SERVICE_NAME }}:{{ .TAG }}
+        env:
+        {{- range .ENV_VARS }}
+        - name: {{ .name }}
+          value: {{ .value }}
+        {{- end }}
+        resources:
+          limits:
+            cpu: {{ .CPU_LIMIT }}
+            memory: {{ .MEMORY_LIMIT }}
+  traffic:
+  - percent: {{ .PERCENT_TO_LATEST }}
+    latestRevision: true

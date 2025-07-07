@@ -1,0 +1,34 @@
+# Top-level image registry configuration
+IMAGE_REGISTRY: us-central1-docker.pkg.dev/my-project/my-gar
+SERVICE_NAME: myapp
+MIN_INSTANCES : 1
+
+environments:
+  dev:
+    REGION: "us-central1"
+    IMAGE: "gcr.io/myapp/dev:latest"
+    MAX_INSTANCES: 3
+    CPU_LIMIT: "1"
+    MEMORY_LIMIT: "512Mi"
+    PERCENT_TO_LATEST: 100
+    TOP : 23
+    ENV_VARS:
+      - name: "ENV"
+        value: "dev"
+      - name: "spring.profile"
+        value: "dev"
+  prd:
+    IMAGE_REGISTRY: us-central1-docker.pkg.dev/my-project/my-gar-prd
+    SERVICE_NAME: "myapp-prd"
+    REGION: "us-central1"
+    IMAGE: "gcr.io/myapp/prd:latest"
+    MIN_INSTANCES: 3
+    MAX_INSTANCES: 10
+    CPU_LIMIT: "2"
+    MEMORY_LIMIT: "1Gi"
+    PERCENT_TO_LATEST: 100
+    ENV_VARS:
+      - name: "ENV"
+        value: "prd"
+      - name: "spring.profile"
+        value: "prd"

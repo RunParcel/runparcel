@@ -4,6 +4,8 @@
 # Binaries for programs and plugins
 *.exe
 *.exe~
+*.swp
+.DS_Store
 *.dll
 *.so
 *.dylib
@@ -11,14 +13,13 @@
 # Test binary, built with `go test -c`
 *.test
 
-# Code coverage profiles and other test artifacts
+# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-coverage.*
-*.coverprofile
-profile.cov
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
+bin/
+deploy/
 
 # Go workspace file
 go.work
@@ -27,6 +28,9 @@ go.work.sum
 # env file
 .env
 
-# Editor/IDE
-# .idea/
-# .vscode/
+# IDE
+.coverage/
+.idea/
+.vimrc
+.vscode/
+.devcontainer/
