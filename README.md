@@ -18,6 +18,10 @@ go install github.com/runparcel/runparcel/cmd/runparcel
 
 `values.yaml`: Define environment-specific configurations.
 ```yaml
+# Top-level image registry configuration
+IMAGE_REGISTRY: us-central1-docker.pkg.dev/my-project/my-gar
+SERVICE_NAME: myapp
+
 environments:
   dev:
     SERVICE_NAME: "myapp-dev"
@@ -61,7 +65,7 @@ spec:
         autoscaling.knative.dev/maxScale: {{ .MAX_INSTANCES }}
     spec:
       containers:
-      - image: {{ .IMAGE }}
+      - image: {{ .IMAGE_REGISTRY }}/{{ .SERVICE_NAME }}:{{ .TAG }}
         env:
         {{- range .ENV_VARS }}
         - name: {{ .name }}

@@ -6,7 +6,6 @@ MIN_INSTANCES : 1
 environments:
   dev:
     REGION: "us-central1"
-    IMAGE: "gcr.io/myapp/dev:latest"
     MAX_INSTANCES: 3
     CPU_LIMIT: "1"
     MEMORY_LIMIT: "512Mi"
@@ -18,11 +17,10 @@ environments:
       - name: "spring.profile"
         value: "dev"
   prd:
-    IMAGE_REGISTRY: us-central1-docker.pkg.dev/my-project/my-gar-prd
-    SERVICE_NAME: "myapp-prd"
+    IMAGE_REGISTRY: us-central1-docker.pkg.dev/my-project/my-gar-prd # over-ride IMAGE_REGISTRY
+    SERVICE_NAME: "myapp-prd" # over-ride SERVICE_NAME
     REGION: "us-central1"
-    IMAGE: "gcr.io/myapp/prd:latest"
-    MIN_INSTANCES: 3
+    MIN_INSTANCES: 3 # over-ride MIN_INSTANCES
     MAX_INSTANCES: 10
     CPU_LIMIT: "2"
     MEMORY_LIMIT: "1Gi"
