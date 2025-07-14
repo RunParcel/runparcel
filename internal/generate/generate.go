@@ -8,6 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+
+	// Utility
+	"github.com/runparcel/runparcel/internal/utils"
 )
 
 const (
@@ -17,33 +20,36 @@ const (
 // Cmd returns the generate command
 func Cmd() *cobra.Command {
 	var templatePath, valuesPath string
+	var userProvidedTag string
 
 	cmd := &cobra.Command{
 		Use:   "generate",
-		Short: "Generate deployment YAML files",
-		Long:  "Generate deployment YAML files for Cloud Run environments.",
+		Short: "Generate deployment YAML files for Cloud Run environments",
+		Long:  `Generate deployment YAML files for Cloud Run environments, with optional tag override or auto-generation.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Set default paths if not provided
-			if templatePath == "" {
-				templatePath = filepath.Join("cloudrun", "run.yaml.tmpl")
-			}
-			if valuesPath == "" {
-				valuesPath = "values.yaml"
-			}
-
-			return Generate(templatePath, valuesPath)
+			// Call Generate with the directly bound flag variables.
+			return Generate(templatePath, valuesPath, userProvidedTag)
 		},
 	}
 
-	// Add flags for template and values paths
+	// Bind flags to the variables
 	cmd.Flags().StringVarP(&templatePath, "template", "t", "", "Path to the template file (default: cloudrun/run.yaml.tmpl)")
 	cmd.Flags().StringVarP(&valuesPath, "values", "v", "", "Path to the values file (default: values.yaml)")
+	cmd.Flags().StringVarP(&userProvidedTag, "tag", "", "", "Specify an image tag")
 
 	return cmd
 }
 
 // Generate reads the template and values, then generates YAML files
-func Generate(templatePath, valuesPath string) error {
+func Generate(templatePath, valuesPath, userProvidedTag string) error {
+	// If flags were not provided, set their default paths here.
+	if templatePath == "" {
+		templatePath = filepath.Join("cloudrun", "run.yaml.tmpl")
+	}
+	if valuesPath == "" {
+		valuesPath = "values.yaml"
+	}
+
 	// Read and parse values.yaml
 	values, err := readValuesFile(valuesPath)
 	if err != nil {
@@ -53,6 +59,12 @@ func Generate(templatePath, valuesPath string) error {
 	// Ensure 'environments' key exists at the top level
 	if _, ok := values["environments"].(map[string]interface{}); !ok {
 		return fmt.Errorf("top-level 'environments' key not found or is invalid in values.yaml")
+	}
+
+	// Determine the base tag to use for all envs
+	resolvedTag, err := utils.GetResolvedTag(userProvidedTag)
+	if err != nil {
+		return err // Error from tag generation
 	}
 
 	// Separate common top-level configuration from environment-specific configurations.
@@ -75,7 +87,7 @@ func Generate(templatePath, valuesPath string) error {
 		return fmt.Errorf("error creating deploy directory: %v", err)
 	}
 
-	// environments block for iteration
+	// Environments block for iteration
 	environments, err := getEnvironments(values)
 	if err != nil {
 		return err
@@ -88,7 +100,6 @@ func Generate(templatePath, valuesPath string) error {
 		}
 
 		// Create a final merged configuration for the current environment.
-		// Start with common (top-level) values, then override with environment-specific values.
 		finalEnvConfig := make(map[string]interface{})
 		for k, v := range commonConfig {
 			finalEnvConfig[k] = v
@@ -96,6 +107,9 @@ func Generate(templatePath, valuesPath string) error {
 		for k, v := range envConfig {
 			finalEnvConfig[k] = v
 		}
+
+		// Inject the resolved tag
+		finalEnvConfig["TAG"] = resolvedTag
 
 		// --- Validation of critical keys after merge ---
 		// These keys are essential for the template and must be present and non-empty
