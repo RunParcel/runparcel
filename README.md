@@ -79,6 +79,20 @@ spec:
   - percent: {{ .PERCENT_TO_LATEST }}
     latestRevision: true
 ```
+### Local Image Tagging Convention 🐳
+When using `runparcel generate` without specifying a `--tag` flag (allowing it to auto-generate a tag like YYYY.MM.DD.commit_hash), runparcel expects that you've pre-tagged your locally built Docker image with a specific convention.
+
+Before running runparcel generate, make sure your local image is tagged as:
+```
+local-registry/YOUR_SERVICE_NAME
+```
+For example, if your top-level SERVICE_NAME in values.yaml is myapp, you would build and tag your Docker image like this:
+
+```sh
+docker build -t local-registry/myapp .
+```
+
+When `runparcel generate` runs and auto-generates a tag, it will then automatically execute a docker tag command. This retags `local-registry/myapp` to your target `IMAGE_REGISTRY` and `SERVICE_NAME` with the newly generated tag (e.g., `us-central1-docker.pkg.dev/my-project/my-gar/myapp:2025.07.13.abcdefg`). This ensures your images are ready for deployment with the correct versioning.
 
 ### Generate Deployment YAMLs
 Run the generate command to create environment-specific YAML files.
@@ -92,7 +106,7 @@ runparcel generate
 #### Custom Paths
 Specify custom paths for `run.yaml` and `values.yaml`:
 ```bash
-runparcel generate --template /path/to/run.yaml --values /path/to/values.yaml
+runparcel generate --template /path/to/run.yaml --values /path/to/values.yaml --tag rc-1.0.2
 ```
 
 #### Output
