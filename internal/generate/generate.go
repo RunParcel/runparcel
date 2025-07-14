@@ -117,7 +117,7 @@ func Generate(templatePath, valuesPath, userProvidedTag string) error {
 		// --- Validation of critical keys after merge ---
 		// These keys are essential for the template and must be present and non-empty
 		// in the final merged configuration for each environment.
-		mandatoryEnvKeys := []string{"IMAGE_REGISTRY", "SERVICE_NAME", "REGION"}
+		mandatoryEnvKeys := []string{"IMAGE_REGISTRY", "SERVICE_NAME"}
 		for _, key := range mandatoryEnvKeys {
 			val, ok := finalEnvConfig[key].(string)
 			if !ok || val == "" {
