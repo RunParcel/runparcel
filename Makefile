@@ -23,8 +23,16 @@ CGO_ENABLED ?= 0
 .PHONY: all
 all: build
 
+.PHONY: prepare-dummy-image
+prepare-dummy-image:
+	@if ! docker image inspect local-registry/myapp:latest > /dev/null 2>&1; then \
+		docker pull alpine:latest; \
+		docker tag alpine:latest local-registry/myapp:latest; \
+	else \
+		echo "Skipping..."; \
+	fi
 .PHONY: build
-build:
+build: prepare-dummy-image
 	@CGO_ENABLED=$(CGO_ENABLED) go build -o $(BINDIR)/$(BINNAME) ./cmd/runparcel
 
 .PHONY: run
