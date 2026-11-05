@@ -6,6 +6,7 @@ runparcel is a CLI tool for managing Cloud Run deployments across multiple envir
 
 - Generate deployment YAML files for different environments.
 - Manage configurations using a single `run.yaml` and `values.yaml` file.
+- Push generated deployment YAML files to Google Artifact Registry (GAR) for CI/CD traceability.
 
 ## Installation
 
@@ -148,12 +149,26 @@ spec:
     latestRevision: true
 ```
 
+### Push Deployment YAMLs to Google Artifact Registry (GAR)
+After generating your deployment YAML files under `deploy/`, use `runparcel push` to upload them to a Google Artifact Registry generic repository via `gcloud artifacts generic upload`.
+
+By default, `runparcel push` extracts the GCP `location`, `project`, and `repository` from `ARTIFACT_REGISTRY` (or `IMAGE_REGISTRY`) and uses `SERVICE_NAME` as the package name in `values.yaml`. You can also set `GAR_PROJECT`, `GAR_LOCATION`, `GAR_REPOSITORY`, or `GAR_PACKAGE` in `values.yaml` (top-level or per-environment), or override them via CLI flags.
+
+```bash
+# Push all generated environment YAMLs using configuration from values.yaml
+runparcel push --tag rc-1.0.2
+
+# Push a single environment with explicit GAR flag overrides
+runparcel push --env prd --project my-project --location us-central1 --repository my-gar-manifests --tag rc-1.0.2
+```
+
 ### Commands
-| Command   | Description                                      |
-|-----------|--------------------------------------------------|
-| `generate` | Generate deployment YAML files.                 |
-| `lint`     | Validate the generated YAML files (coming soon).|
-| `tag`      | Generate a deployment tag (coming soon).        |
+| Command   | Description                                                       |
+|-----------|-------------------------------------------------------------------|
+| `generate` | Generate deployment YAML files.                                  |
+| `push`     | Push generated deployment YAML files to Google Artifact Registry.|
+| `lint`     | Validate the generated YAML files (coming soon).                 |
+| `tag`      | Generate a deployment tag (coming soon).                         |
 
 
 ### Contributing
