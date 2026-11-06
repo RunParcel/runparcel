@@ -1,5 +1,6 @@
-# Top-level image registry configuration
+# Top-level image & artifact registry configuration
 IMAGE_REGISTRY: us-central1-docker.pkg.dev/my-project/my-gar
+ARTIFACT_REGISTRY: us-central1-generic.pkg.dev/my-project/my-gar
 SERVICE_NAME: myapp
 MIN_INSTANCES : 1
 

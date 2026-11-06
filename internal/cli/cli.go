@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/runparcel/runparcel/internal/generate"
+	"github.com/runparcel/runparcel/internal/push"
 
 	"github.com/spf13/cobra"
 )
@@ -16,6 +17,7 @@ func Execute() error {
 
 	// Add subcommands
 	rootCmd.AddCommand(generate.Cmd())
+	rootCmd.AddCommand(push.Cmd())
 
 	return rootCmd.Execute()
 }
